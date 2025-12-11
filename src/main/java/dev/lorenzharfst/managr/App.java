@@ -1,13 +1,17 @@
 package dev.lorenzharfst.managr;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 /**
- * Hello world!
+ * Main class starting Spring.
  *
  */
+@SpringBootApplication
 public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        SpringApplication.run(App.class, args);
     }
 }
