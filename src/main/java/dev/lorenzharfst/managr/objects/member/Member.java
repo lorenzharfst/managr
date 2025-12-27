@@ -10,4 +10,8 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
+    // Username with which member logs in
+    String username;
+    // Name that is visible to other users
+    String displayname;
 }
