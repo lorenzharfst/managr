@@ -1,9 +1,11 @@
 package dev.lorenzharfst.managr.objects.member;
 
+import dev.lorenzharfst.managr.objects.club.Club;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 
 @Entity
 public class Member {
@@ -14,4 +16,9 @@ public class Member {
     String username;
     // Name that is visible to other users
     String displayname;
+    @ManyToMany
+    Club club;
+    
+    // No-arg constructor for reflection
+    public Member() {}
 }
