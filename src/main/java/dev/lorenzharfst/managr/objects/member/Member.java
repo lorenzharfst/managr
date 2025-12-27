@@ -21,4 +21,37 @@ public class Member {
     
     // No-arg constructor for reflection
     public Member() {}
+
+    // Getters & Setters
+    public long getId() {
+            return id;
+    }
+
+    public void setId(long id) {
+            this.id = id;
+    }
+
+    public String getUsername() {
+            return username;
+    }
+
+    public void setUsername(String username) {
+            this.username = username;
+    }
+
+    public String getDisplayname() {
+            return displayname;
+    }
+
+    public void setDisplayname(String displayname) {
+            this.displayname = displayname;
+    }
+
+    public Club getClub() {
+            return club;
+    }
+
+    public void setClub(Club club) {
+            this.club = club;
+    }
 }

@@ -33,4 +33,63 @@ public class Club {
 
     // No-arg constructor for reflection
     public Club() {}
+
+    // Getters & Setters
+    public long getId() {
+            return id;
+    }
+
+    public void setId(long id) {
+            this.id = id;
+    }
+
+    public Date getCreationDate() {
+            return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+            this.creationDate = creationDate;
+    }
+
+    public String getName() {
+            return name;
+    }
+
+    public void setName(String name) {
+            this.name = name;
+    }
+
+    public String getDescription() {
+            return description;
+    }
+
+    public void setDescription(String description) {
+            this.description = description;
+    }
+
+    public long getOwnerId() {
+            return ownerId;
+    }
+
+    public void setOwnerId(long ownerId) {
+            this.ownerId = ownerId;
+    }
+
+    public List<Member> getMembers() {
+            return members;
+    }
+
+    public void setMembers(List<Member> members) {
+            this.members = members;
+    }
+
+    public List<Meetup> getMeetups() {
+            return meetups;
+    }
+
+    public void setMeetups(List<Meetup> meetups) {
+            this.meetups = meetups;
+    }
+
+
 }

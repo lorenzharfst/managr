@@ -29,4 +29,79 @@ public class Meetup {
 
     // No-arg constructor for reflection
     public Meetup() {}
+
+    // Getters & Setters
+    public long getId() {
+            return id;
+    }
+
+    public void setId(long id) {
+            this.id = id;
+    }
+
+    public Date getCreationDate() {
+            return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+            this.creationDate = creationDate;
+    }
+
+    public Date getAssignedDate() {
+            return assignedDate;
+    }
+
+    public void setAssignedDate(Date assignedDate) {
+            this.assignedDate = assignedDate;
+    }
+
+    public List<Member> getAttendees() {
+            return attendees;
+    }
+
+    public void setAttendees(List<Member> attendees) {
+            this.attendees = attendees;
+    }
+
+    public long getHostId() {
+            return hostId;
+    }
+
+    public void setHostId(long hostId) {
+            this.hostId = hostId;
+    }
+
+    public int getAttendeeSlots() {
+            return attendeeSlots;
+    }
+
+    public void setAttendeeSlots(int attendeeSlots) {
+            this.attendeeSlots = attendeeSlots;
+    }
+
+    public String getLocation() {
+            return location;
+    }
+
+    public void setLocation(String location) {
+            this.location = location;
+    }
+
+    public String getDescription() {
+            return description;
+    }
+
+    public void setDescription(String description) {
+            this.description = description;
+    }
+
+    public Club getClub() {
+            return club;
+    }
+
+    public void setClub(Club club) {
+            this.club = club;
+    }
+
+
 }
