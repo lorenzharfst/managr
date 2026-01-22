@@ -31,6 +31,11 @@ public class Club {
     @JoinColumn(nullable = false)
     List<Meetup> meetups = new ArrayList<Meetup>();
 
+    public Club(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
     // No-arg constructor for reflection
     public Club() {}
 

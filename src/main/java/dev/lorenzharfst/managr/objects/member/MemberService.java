@@ -1,3 +1,7 @@
 package dev.lorenzharfst.managr.objects.member;
 
-public class MemberService {}
+import org.springframework.stereotype.Service;
+
+@Service
+public class MemberService {
+}
