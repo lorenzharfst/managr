@@ -1,4 +1,4 @@
-package dev.lorenzharfst.managr.objects.meetup;
+package dev.lorenzharfst.managr.objects.club;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,15 +1,13 @@
-package dev.lorenzharfst.managr.objects.meetup;
+package dev.lorenzharfst.managr.objects.club;
 
 import java.util.Date;
 import java.util.List;
 
-import dev.lorenzharfst.managr.objects.club.Club;
 import dev.lorenzharfst.managr.objects.member.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
