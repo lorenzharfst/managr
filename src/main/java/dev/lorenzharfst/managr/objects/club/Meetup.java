@@ -18,7 +18,7 @@ public class Meetup {
     Date creationDate;
     Date assignedDate;
     List<Member> attendees;
-    // Login name of host
+    // Login name of host, decided for keeping the name and not the MemberId since we already have the name with Spring's Authority
     String hostName;
     String title;
     int attendeeSlots;
