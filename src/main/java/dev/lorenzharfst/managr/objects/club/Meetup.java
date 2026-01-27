@@ -18,13 +18,24 @@ public class Meetup {
     Date creationDate;
     Date assignedDate;
     List<Member> attendees;
-    long hostId;
+    // Login name of host
+    String hostName;
+    String title;
     int attendeeSlots;
     String location;
     String description;
     @ManyToOne
     Club club;
 
+    public Meetup(String hostName, String title, Date assignedDate, int attendeeSlots, String location, String description) {
+        this.hostName = hostName;
+        this.title = title;
+        this.assignedDate = assignedDate;
+        this.creationDate = new Date();
+        this.attendeeSlots = attendeeSlots;
+        this.location = location;
+        this.description = description;
+    }
     // No-arg constructor for reflection
     public Meetup() {}
 
@@ -61,12 +72,12 @@ public class Meetup {
             this.attendees = attendees;
     }
 
-    public long getHostId() {
-            return hostId;
+    public String getHostName() {
+            return hostName;
     }
 
-    public void setHostId(long hostId) {
-            this.hostId = hostId;
+    public void setHostName(String hostName) {
+            this.hostName = hostName;
     }
 
     public int getAttendeeSlots() {
@@ -100,6 +111,11 @@ public class Meetup {
     public void setClub(Club club) {
             this.club = club;
     }
+    public String getTitle() {
+            return title;
+    }
 
-
+    public void setTitle(String title) {
+            this.title = title;
+    }
 }
