@@ -17,9 +17,10 @@ public class ClubService {
     /**
      * Create a new Club given a Name and a Description
      */
-    public void createClub(String name, String description) {
+    public long createClub(String name, String description) {
+        if (clubRepository.findByName(name) != null) throw new IllegalArgumentException("Club with that name already exists.");
         Club club = new Club(name, description);
-        clubRepository.save(club);
+        return clubRepository.save(club).getId();
     }
 
 }
