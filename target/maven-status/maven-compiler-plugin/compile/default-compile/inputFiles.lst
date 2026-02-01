@@ -1,2 +1,12 @@
 /home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/App.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/club/Club.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/club/ClubController.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/club/ClubRepository.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/club/ClubService.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/club/Meetup.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/club/MeetupRepository.java
 /home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/member/Member.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/member/MemberController.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/member/MemberRepository.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/member/MemberService.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/security/AuthenticationController.java
