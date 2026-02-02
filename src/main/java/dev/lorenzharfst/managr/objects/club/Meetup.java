@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import dev.lorenzharfst.managr.objects.member.Member;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +19,7 @@ public class Meetup {
     long id;
     Date creationDate;
     Date assignedDate;
-    @ManyToMany(mappedBy = "meetups")
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "meetups")
     List<Member> attendees;
     // Login name of host, decided for keeping the name and not the MemberId since we already have the name with Spring's Authority
     String hostName;

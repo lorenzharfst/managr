@@ -24,7 +24,7 @@ public class Club {
     String name;
     String description;
     long ownerId;
-    @ManyToMany(mappedBy = "clubs")
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "clubs")
     List<Member> members = new ArrayList<Member>();
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "club")
     List<Meetup> meetups = new ArrayList<Meetup>();

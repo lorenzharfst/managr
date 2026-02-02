@@ -23,6 +23,13 @@ public class ClubService {
     MeetupRepository meetupRepository;
 
     /**
+     * Get a Club given a Club ID
+     */
+    public Club getClub(long clubId){
+        return clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
+    }
+
+    /**
      * Create a new Club given a Name and a Description.
      * @param name The club name
      * @param description
@@ -80,7 +87,7 @@ public class ClubService {
      * @param meetupId
      * @param memberUsername Login name of that member
      */
-    public void joinMeetup(long meetupId, String memberUsername) {
+    public void addMeetupAttendee(long meetupId, String memberUsername) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
         meetup.getAttendees().add(member);
@@ -141,13 +148,12 @@ public class ClubService {
         meetupRepository.save(meetup);
     }
 
-    /** Remove a Meetup from a Club
-     * @param clubId
+    /** Remove a Meetup 
      * @param meetupId
      */
-    public void removeMeetup(long clubId, long meetupId) {
-        Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
-        club.getMeetups().removeIf((meetup) -> meetup.getId() == meetupId);
+    public void deleteMeetup(long meetupId) {
+        Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
+        meetupRepository.delete(meetup);
     }
 
 }
