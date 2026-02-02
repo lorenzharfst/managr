@@ -35,6 +35,20 @@ public class ClubService {
     }
 
     /**
+     * Given a member's login username, joins them to a club. Only the authenticated user can perform this action.
+     * @param memberUsername The actual log in username, which is unique.
+     * @param clubId
+     */
+    public void joinClub(String memberUsername, long clubId) throws NoSuchElementException {
+        // Will return null if it didn't find that club
+        Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
+        Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
+
+        club.getMembers().add(member);
+        clubRepository.save(club);
+    }
+
+    /**
      * Create a new Meetup given a Club id.
      * @param hostName The login username of the person creating the club
      * @param title The title of the Meetup
