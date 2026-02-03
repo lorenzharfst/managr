@@ -1,6 +1,10 @@
 package dev.lorenzharfst.managr.objects.member;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dev.lorenzharfst.managr.objects.club.Club;
+import dev.lorenzharfst.managr.objects.club.Meetup;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,7 +21,9 @@ public class Member {
     // Name that is visible to other users
     String displayname;
     @ManyToMany
-    Club club;
+    List<Club> clubs = new ArrayList<Club>();
+    @ManyToMany
+    List<Meetup> meetups = new ArrayList<Meetup>();
     
     // No-arg constructor for reflection
     public Member() {}
@@ -47,11 +53,11 @@ public class Member {
             this.displayname = displayname;
     }
 
-    public Club getClub() {
+    public List<Club> getClub() {
             return club;
     }
 
-    public void setClub(Club club) {
+    public void setClub(List<Club> club) {
             this.club = club;
     }
 }

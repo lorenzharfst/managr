@@ -23,6 +23,13 @@ public class ClubService {
     MeetupRepository meetupRepository;
 
     /**
+     * Get a Club given a Club ID
+     */
+    public Club getClub(long clubId){
+        return clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
+    }
+
+    /**
      * Create a new Club given a Name and a Description.
      * @param name The club name
      * @param description
@@ -32,6 +39,20 @@ public class ClubService {
         if (clubRepository.findByName(name).isEmpty()) throw new IllegalArgumentException("Club with that name already exists.");
         Club club = new Club(name, description);
         return clubRepository.save(club).getId();
+    }
+
+    /**
+     * Given a member's login username, joins them to a club. Only the authenticated user can perform this action.
+     * @param memberUsername The actual log in username, which is unique.
+     * @param clubId
+     */
+    public void joinClub(String memberUsername, long clubId) throws NoSuchElementException {
+        // Will return null if it didn't find that club
+        Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
+        Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
+
+        club.getMembers().add(member);
+        clubRepository.save(club);
     }
 
     /**
@@ -66,7 +87,7 @@ public class ClubService {
      * @param meetupId
      * @param memberUsername Login name of that member
      */
-    public void joinMeetup(long meetupId, String memberUsername) {
+    public void addMeetupAttendee(long meetupId, String memberUsername) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
         meetup.getAttendees().add(member);
@@ -127,13 +148,12 @@ public class ClubService {
         meetupRepository.save(meetup);
     }
 
-    /** Remove a Meetup from a Club
-     * @param clubId
+    /** Remove a Meetup 
      * @param meetupId
      */
-    public void removeMeetup(long clubId, long meetupId) {
-        Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
-        club.getMeetups().removeIf((meetup) -> meetup.getId() == meetupId);
+    public void deleteMeetup(long meetupId) {
+        Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
+        meetupRepository.delete(meetup);
     }
 
 }

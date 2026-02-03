@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import dev.lorenzharfst.managr.objects.meetup.Meetup;
+import dev.lorenzharfst.managr.objects.club.Meetup;
 import dev.lorenzharfst.managr.objects.member.Member;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -24,11 +24,9 @@ public class Club {
     String name;
     String description;
     long ownerId;
-    @ManyToMany(mappedBy = "club")
-    @JoinColumn(nullable = false)
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "clubs")
     List<Member> members = new ArrayList<Member>();
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "club")
-    @JoinColumn(nullable = false)
     List<Meetup> meetups = new ArrayList<Meetup>();
 
     public Club(String name, String description) {
