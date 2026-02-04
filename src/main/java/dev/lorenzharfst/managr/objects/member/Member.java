@@ -54,10 +54,10 @@ public class Member {
     }
 
     public List<Club> getClub() {
-            return club;
+            return clubs;
     }
 
     public void setClub(List<Club> club) {
-            this.club = club;
+            this.clubs = club;
     }
 }

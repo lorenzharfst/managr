@@ -35,9 +35,9 @@ public class ClubService {
      * @param description
      * @return The newly created Club id
      */
-    public long createClub(String name, String description) {
-        if (clubRepository.findByName(name).isEmpty()) throw new IllegalArgumentException("Club with that name already exists.");
-        Club club = new Club(name, description);
+    public long createClub(String name) {
+        if (!clubRepository.findByName(name).isEmpty()) throw new IllegalArgumentException("Club with that name already exists.");
+        Club club = new Club(name);
         return clubRepository.save(club).getId();
     }
 
@@ -46,7 +46,7 @@ public class ClubService {
      * @param memberUsername The actual log in username, which is unique.
      * @param clubId
      */
-    public void joinClub(String memberUsername, long clubId) throws NoSuchElementException {
+    public void addClubMember(String memberUsername, long clubId) throws NoSuchElementException {
         // Will return null if it didn't find that club
         Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
         Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
