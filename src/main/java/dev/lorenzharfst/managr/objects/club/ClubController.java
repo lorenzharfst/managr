@@ -27,13 +27,13 @@ public class ClubController {
     }
 
     @PostMapping("/clubs")
-    long createClub(@RequestParam String name, @RequestParam String description) {
-        return clubService.createClub(name, description);
+    long createClub(@RequestParam String name) {
+        return clubService.createClub(name);
     }
 
-    @PutMapping("/clubs/{clubId}/join")
-    void joinClub(@RequestParam String memberUsername, @PathVariable long clubId) {
-        clubService.joinClub(memberUsername, clubId);
+    @PutMapping("/clubs/{clubId}/add-member")
+    void addClubMember(@RequestParam String memberUsername, @PathVariable long clubId) {
+        clubService.addClubMember(memberUsername, clubId);
     }
 
     @PostMapping("/meetups")

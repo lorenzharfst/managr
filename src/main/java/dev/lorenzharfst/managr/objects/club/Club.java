@@ -32,6 +32,12 @@ public class Club {
     public Club(String name, String description) {
         this.name = name;
         this.description = description;
+        this.creationDate = new Date();
+    }
+
+    public Club(String name) {
+        this.name = name;
+        this.creationDate = new Date();
     }
 
     // No-arg constructor for reflection
