@@ -9,5 +9,9 @@
 /home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/member/MemberController.java
 /home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/member/MemberRepository.java
 /home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/objects/member/MemberService.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/security/AccessDeniedFormLoginHandler.java
 /home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/security/AuthenticationController.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/security/DefaultFormLoginAuthenticationEntryPoint.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/security/FailureFormLoginHandler.java
 /home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/security/SecurityConfig.java
+/home/kodex/Programming/managr/src/main/java/dev/lorenzharfst/managr/security/SuccessfulFormLoginHandler.java
