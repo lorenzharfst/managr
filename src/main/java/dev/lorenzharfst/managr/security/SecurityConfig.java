@@ -35,7 +35,7 @@ public class SecurityConfig {
         // Temporarily disabled csrf until I get around to configuring it
         http.csrf((csrf) -> csrf.disable())
             .authorizeHttpRequests((authorize) -> authorize
-                    .anyRequest().permitAll()
+                    .anyRequest().authenticated()
                     ).formLogin(Customizer.withDefaults())
             .logout((logout) -> logout.logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK)));
 
@@ -53,8 +53,8 @@ public class SecurityConfig {
         Member member = new Member("foo");
         memberRepository.save(member);
         JdbcUserDetailsManager userDetailsService = new JdbcUserDetailsManager(dataSource);
-        // User persist even though it's set to create-drop, leaving this just in case
-        //userDetailsService.createUser(user);
+        // Create the test user if it doesn't exist yet. Delete this in prod too.
+        if (!userDetailsService.userExists("foo")) userDetailsService.createUser(user);
 
         return userDetailsService;
     }
