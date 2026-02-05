@@ -28,6 +28,10 @@ public class Member {
     // No-arg constructor for reflection
     public Member() {}
 
+    public Member(String username) {
+        this.username = username;
+    }
+
     // Getters & Setters
     public long getId() {
             return id;

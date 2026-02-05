@@ -8,17 +8,27 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import dev.lorenzharfst.managr.objects.member.Member;
+import dev.lorenzharfst.managr.objects.member.MemberRepository;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    MemberRepository memberRepository;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
@@ -26,20 +36,44 @@ public class SecurityConfig {
         http.csrf((csrf) -> csrf.disable())
             .authorizeHttpRequests((authorize) -> authorize
                     .anyRequest().permitAll()
-                    )
+                    ).formLogin(Customizer.withDefaults())
             .logout((logout) -> logout.logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK)));
 
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
-        return new ProviderManager(daoAuthenticationProvider);
+    public JdbcUserDetailsManager jdbcUserDetailsService(DataSource dataSource) {
+        // Creating a test user. Delete in prod.
+        UserDetails user = User.builder()
+            .username("foo")
+            .password(passwordEncoder().encode("bar"))
+            .roles("USER")
+            .build();
+        Member member = new Member("foo");
+        memberRepository.save(member);
+        JdbcUserDetailsManager userDetailsService = new JdbcUserDetailsManager(dataSource);
+        // User persist even though it's set to create-drop, leaving this just in case
+        //userDetailsService.createUser(user);
+
+        return userDetailsService;
     }
 
     @Bean
-    public UserDetailsService jdbcUserDetailsService(DataSource dataSource) {
-        return new JdbcUserDetailsManager(dataSource);
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService jdbcUserDetailsService, BCryptPasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider dao = new DaoAuthenticationProvider(jdbcUserDetailsService);
+        dao.setPasswordEncoder(passwordEncoder);
+
+        return new ProviderManager(dao);
+    }
+
+    //@Autowired
+    //public void configure(AuthenticationManagerBuilder builder, DataSource dataSource) throws Exception {
+        //builder.jdbcAuthentication().dataSource(dataSource);
+    //}
 }
