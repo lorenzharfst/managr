@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -35,11 +34,18 @@ public class SecurityConfig {
         http.csrf((csrf) -> csrf.disable())
             .logout((logout) -> logout.logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK)))
             .formLogin((login) -> {
-                // Use a custom AuthenticationSuccessHandler so it doesn't redirect to a new page and so on
-                login.successHandler(new SuccessfulFormLoginHandler());})
+                // Use a custom AuthenticationSuccessHandler so it doesn't redirect to a new page and so on, same with Failure below
+                login.successHandler(new SuccessfulFormLoginHandler());
+                login.failureHandler(new FailureFormLoginHandler());
+            })
             .authorizeHttpRequests((authorize) -> authorize
                 .anyRequest().authenticated()
-            );
+            )
+            .exceptionHandling((configurer) -> {
+                // Just respond with a status code instead of a page redirect when unauthorized access
+                configurer.accessDeniedHandler(new AccessDeniedFormLoginHandler());
+                configurer.authenticationEntryPoint(new FormLoginAuthenticationEntryPoint());
+            });
 
         return http.build();
     }
