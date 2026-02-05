@@ -8,7 +8,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -34,10 +33,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) {
         // Temporarily disabled csrf until I get around to configuring it
         http.csrf((csrf) -> csrf.disable())
+            .logout((logout) -> logout.logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK)))
+            .formLogin((login) -> {
+                // Use a custom AuthenticationSuccessHandler so it doesn't redirect to a new page and so on
+                login.successHandler(new SuccessfulFormLoginHandler());})
             .authorizeHttpRequests((authorize) -> authorize
-                    .anyRequest().authenticated()
-                    ).formLogin(Customizer.withDefaults())
-            .logout((logout) -> logout.logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK)));
+                .anyRequest().authenticated()
+            );
 
         return http.build();
     }
