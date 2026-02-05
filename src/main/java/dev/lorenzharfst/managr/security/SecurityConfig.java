@@ -71,9 +71,4 @@ public class SecurityConfig {
 
         return new ProviderManager(dao);
     }
-
-    //@Autowired
-    //public void configure(AuthenticationManagerBuilder builder, DataSource dataSource) throws Exception {
-        //builder.jdbcAuthentication().dataSource(dataSource);
-    //}
 }
