@@ -6,7 +6,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-class FormLoginAuthenticationEntryPoint implements AuthenticationEntryPoint {
+class DefaultFormLoginAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest req, HttpServletResponse res, AuthenticationException ex) {

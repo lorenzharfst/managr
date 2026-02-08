@@ -44,7 +44,7 @@ public class SecurityConfig {
             .exceptionHandling((configurer) -> {
                 // Just respond with a status code instead of a page redirect when unauthorized access
                 configurer.accessDeniedHandler(new AccessDeniedFormLoginHandler());
-                configurer.authenticationEntryPoint(new FormLoginAuthenticationEntryPoint());
+                configurer.authenticationEntryPoint(new DefaultFormLoginAuthenticationEntryPoint());
             });
 
         return http.build();
