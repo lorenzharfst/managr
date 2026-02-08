@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -52,18 +53,10 @@ public class SecurityConfig {
 
     @Bean
     public JdbcUserDetailsManager jdbcUserDetailsService(DataSource dataSource) {
-        // Creating a test user. Delete in prod.
-        UserDetails user = User.builder()
-            .username("foo")
-            .password(passwordEncoder().encode("bar"))
-            .roles("USER")
-            .build();
-        Member member = new Member("foo");
-        memberRepository.save(member);
         JdbcUserDetailsManager userDetailsService = new JdbcUserDetailsManager(dataSource);
-        // Create the test user if it doesn't exist yet. Delete this in prod too.
-        if (!userDetailsService.userExists("foo")) userDetailsService.createUser(user);
 
+        // Create test user, delete in prod
+        createTestUser(userDetailsService);
         return userDetailsService;
     }
 
@@ -78,5 +71,16 @@ public class SecurityConfig {
         dao.setPasswordEncoder(passwordEncoder);
 
         return new ProviderManager(dao);
+    }
+
+    public void createTestUser(JdbcUserDetailsManager userDetailsService) {
+        UserDetails user = User.builder()
+            .username("foo")
+            .password(passwordEncoder().encode("bar"))
+            .roles("USER")
+            .build();
+        Member member = new Member("foo");
+        memberRepository.save(member);
+        if (!userDetailsService.userExists("foo")) userDetailsService.createUser(user);
     }
 }
