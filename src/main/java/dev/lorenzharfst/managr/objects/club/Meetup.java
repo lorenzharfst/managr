@@ -22,7 +22,6 @@ public class Meetup {
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "meetups")
     List<Member> attendees;
     // Login name of host, decided for keeping the name and not the MemberId since we already have the name with Spring's Authority
-    String hostName;
     String title;
     int attendeeSlots;
     String location;
@@ -30,8 +29,7 @@ public class Meetup {
     @ManyToOne
     Club club;
 
-    public Meetup(String hostName, String title, Date assignedDate, int attendeeSlots, String location, String description) {
-        this.hostName = hostName;
+    public Meetup(String title, Date assignedDate, int attendeeSlots, String location, String description) {
         this.title = title;
         this.assignedDate = assignedDate;
         this.creationDate = new Date();
@@ -39,6 +37,7 @@ public class Meetup {
         this.location = location;
         this.description = description;
     }
+
     // No-arg constructor for reflection
     public Meetup() {}
 
@@ -73,14 +72,6 @@ public class Meetup {
 
     public void setAttendees(List<Member> attendees) {
             this.attendees = attendees;
-    }
-
-    public String getHostName() {
-            return hostName;
-    }
-
-    public void setHostName(String hostName) {
-            this.hostName = hostName;
     }
 
     public int getAttendeeSlots() {
