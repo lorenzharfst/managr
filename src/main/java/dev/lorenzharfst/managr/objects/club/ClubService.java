@@ -51,14 +51,14 @@ public class ClubService {
      * @return The newly created Club id
      */
     @Transactional
-    public long createClub(String name, Authentication authentication) {
+    public long createClub(String name, Principal principal) {
         Club club = new Club(name);
         club = clubRepository.save(club);
         Permission permission = BasePermission.ADMINISTRATION;
 
         // We set the authenticated user to be the administrator of the club
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(Club.class, club.getId());
-        Sid sid = new PrincipalSid(authentication.getName());
+        Sid sid = new PrincipalSid(principal.getName());
 
         MutableAcl acl = null;
         try {
@@ -95,7 +95,7 @@ public class ClubService {
      * @return The id of the newly created Meetup
      */
     @Transactional
-    public long createMeetup(Authentication authentication, String title, Date assignedDate, int attendeeSlots, String location, String description, long clubId) {
+    public long createMeetup(Principal principal, String title, Date assignedDate, int attendeeSlots, String location, String description, long clubId) {
         Meetup meetup = new Meetup(title, assignedDate, attendeeSlots, location, description);
         Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
         meetup.setClub(club);
@@ -103,7 +103,7 @@ public class ClubService {
 
         // We set the authenticated user as the administrator of this meetup
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(Meetup.class, meetup.getId());
-        Sid sid = new PrincipalSid(authentication.getName());
+        Sid sid = new PrincipalSid(principal.getName());
         Permission permission = BasePermission.ADMINISTRATION;
 
         MutableAcl acl = null;
