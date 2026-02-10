@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import dev.lorenzharfst.managr.objects.club.Meetup;
 import dev.lorenzharfst.managr.objects.member.Member;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 
@@ -23,7 +21,6 @@ public class Club {
     Date creationDate;
     String name;
     String description;
-    long ownerId;
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "clubs")
     List<Member> members = new ArrayList<Member>();
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "club")
@@ -74,14 +71,6 @@ public class Club {
 
     public void setDescription(String description) {
             this.description = description;
-    }
-
-    public long getOwnerId() {
-            return ownerId;
-    }
-
-    public void setOwnerId(long ownerId) {
-            this.ownerId = ownerId;
     }
 
     public List<Member> getMembers() {

@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,8 +28,8 @@ public class ClubController {
     }
 
     @PostMapping("/clubs")
-    long createClub(@RequestParam String name) {
-        return clubService.createClub(name);
+    long createClub(@RequestParam String name, Authentication authentication) {
+        return clubService.createClub(name, authentication);
     }
 
     @PutMapping("/clubs/{clubId}/add-member")
@@ -37,8 +38,8 @@ public class ClubController {
     }
 
     @PostMapping("/meetups")
-    long createMeetup(@RequestBody MeetupDTO meetup) {
-        return clubService.createMeetup(meetup.hostName, meetup.title, meetup.assignedDate, meetup.attendeeSlots, meetup.location, meetup.description, meetup.clubId);
+    long createMeetup(@RequestBody MeetupDTO meetup, Authentication authentication) {
+        return clubService.createMeetup(authentication, meetup.title, meetup.assignedDate, meetup.attendeeSlots, meetup.location, meetup.description, meetup.clubId);
     }
 
     @GetMapping("/meetups/{meetupId}")
@@ -72,7 +73,6 @@ public class ClubController {
     }
 
     static class MeetupDTO {
-        public String hostName;
         public String title;
         public Date assignedDate;
         public int attendeeSlots;
