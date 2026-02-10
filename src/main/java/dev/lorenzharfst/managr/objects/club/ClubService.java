@@ -10,6 +10,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.jdbc.JdbcMutableAclService;
+import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -82,7 +83,20 @@ public class ClubService {
         Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
 
         club.getMembers().add(member);
-        clubRepository.save(club);
+        club = clubRepository.save(club);
+
+        // We give read permission to the added member
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(Club.class, club.getId());
+        Sid sid = new PrincipalSid(memberUsername);
+        
+        MutableAcl acl = null;
+        try {
+            acl = (MutableAcl) aclService.readAclById(objectIdentity);
+        } catch (NotFoundException nfe) {
+            acl = aclService.createAcl(objectIdentity);
+        }
+        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.CREATE, sid, true);
     }
 
     /**
@@ -101,20 +115,24 @@ public class ClubService {
         meetup.setClub(club);
         meetup = meetupRepository.save(meetup);
 
-        // We set the authenticated user as the administrator of this meetup
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(Meetup.class, meetup.getId());
         Sid sid = new PrincipalSid(principal.getName());
-        Permission permission = BasePermission.ADMINISTRATION;
 
-        MutableAcl acl = null;
+        MutableAcl meetupAcl = null;
         try {
-            acl = (MutableAcl) aclService.readAclById(objectIdentity);
+            meetupAcl = (MutableAcl) aclService.readAclById(objectIdentity);
         } catch (NotFoundException nfe) {
-            acl = aclService.createAcl(objectIdentity);
+            meetupAcl = aclService.createAcl(objectIdentity);
         }
 
-        acl.insertAce(acl.getEntries().size(), permission, sid, true);
-        aclService.updateAcl(acl);
+        // We set the authenticated user as the administrator of this meetup
+        meetupAcl.insertAce(meetupAcl.getEntries().size(), BasePermission.ADMINISTRATION, sid, true);
+        // We set the administrators of the group to also become administrators of the meetup
+        MutableAcl clubAcl = (MutableAcl) aclService.readAclById(new ObjectIdentityImpl(Club.class, club.getId()));
+        for (AccessControlEntry ace : clubAcl.getEntries()) {
+            if (ace.getPermission() == BasePermission.ADMINISTRATION) meetupAcl.insertAce(meetupAcl.getEntries().size(), BasePermission.ADMINISTRATION, ace.getSid(), true);
+        }
+        aclService.updateAcl(meetupAcl);
 
         return meetup.getId();
     }
@@ -133,9 +151,9 @@ public class ClubService {
      * @param meetupId
      * @param memberUsername Login name of that member
      */
-    public void addMeetupAttendee(long meetupId, String memberUsername) {
+    public void addMeetupAttendee(long meetupId, long memberId) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
-        Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
+        Member member = memberRepository.findById(memberId).orElseThrow(NoSuchElementException::new);
         meetup.getAttendees().add(member);
         meetupRepository.save(meetup);
     }
