@@ -1,5 +1,6 @@
 package dev.lorenzharfst.managr.objects.club;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -22,6 +23,9 @@ public class ClubService {
     @Autowired
     MeetupRepository meetupRepository;
 
+    @Autowired
+    Principal principal;
+
     /**
      * Get a Club given a Club ID
      */
@@ -36,9 +40,9 @@ public class ClubService {
      * @return The newly created Club id
      */
     public long createClub(String name) {
-        if (!clubRepository.findByName(name).isEmpty()) throw new IllegalArgumentException("Club with that name already exists.");
         Club club = new Club(name);
-        return clubRepository.save(club).getId();
+        club = clubRepository.save(club);
+        return club.getId();
     }
 
     /**
