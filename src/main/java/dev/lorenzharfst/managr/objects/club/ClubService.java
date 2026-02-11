@@ -16,7 +16,6 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +54,6 @@ public class ClubService {
     public long createClub(String name, Principal principal) {
         Club club = new Club(name);
         club = clubRepository.save(club);
-        Permission permission = BasePermission.ADMINISTRATION;
 
         // We set the authenticated user to be the administrator of the club
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(Club.class, club.getId());
@@ -67,7 +65,7 @@ public class ClubService {
         } catch (NotFoundException nfe) {
             acl = aclService.createAcl(objectIdentity);
         }
-        acl.insertAce(acl.getEntries().size(), permission, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.ADMINISTRATION, sid, true);
 
         return club.getId();
     }
@@ -130,7 +128,9 @@ public class ClubService {
         // We set the administrators of the group to also become administrators of the meetup
         MutableAcl clubAcl = (MutableAcl) aclService.readAclById(new ObjectIdentityImpl(Club.class, club.getId()));
         for (AccessControlEntry ace : clubAcl.getEntries()) {
-            if (ace.getPermission() == BasePermission.ADMINISTRATION) meetupAcl.insertAce(meetupAcl.getEntries().size(), BasePermission.ADMINISTRATION, ace.getSid(), true);
+            if (ace.getPermission() == BasePermission.ADMINISTRATION) {
+                meetupAcl.insertAce(meetupAcl.getEntries().size(), BasePermission.ADMINISTRATION, ace.getSid(), true);
+            }
         }
         aclService.updateAcl(meetupAcl);
 
@@ -149,11 +149,23 @@ public class ClubService {
     /**
      * Join a meetup given a Meetup id and a Member's login name.
      * @param meetupId
-     * @param memberUsername Login name of that member
+     * @param memberId Member id
      */
     public void addMeetupAttendee(long meetupId, long memberId) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(NoSuchElementException::new);
+        meetup.getAttendees().add(member);
+        meetupRepository.save(meetup);
+    }
+
+    /**
+     * Join a meetup given a Meetup id and a Member's login name.
+     * @param meetupId
+     * @param memberUsername Login name of that member
+     */
+    public void addMeetupAttendee(long meetupId, String memberUsername) {
+        Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
+        Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
         meetup.getAttendees().add(member);
         meetupRepository.save(meetup);
     }
@@ -166,6 +178,16 @@ public class ClubService {
     public void removeMeetupAttendee(long meetupId, long memberId) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         meetup.getAttendees().removeIf((member) -> member.getId() == memberId);
+    }
+
+    /**
+     * Remove a Member from the Attendees of a Meetup.
+     * @param meetupId
+     * @param memberUsername Login name of that member
+     */
+    public void removeMeetupAttendee(long meetupId, String memberUsername) {
+        Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
+        meetup.getAttendees().removeIf((member) -> member.getUsername() == memberUsername);
     }
 
     /**
