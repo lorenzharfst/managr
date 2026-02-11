@@ -25,7 +25,7 @@ public class ClubController {
     /** Retrieve a club by its id. User must have READ or ADMINISTRATION permission to retrieve the club. **/
     @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', admin) || hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', read)")
     @GetMapping("/clubs/{clubId}")
-    ResponseEntity<Club> getClub(@P("clubId") @PathVariable long clubId) {
+    ResponseEntity<Club> getClub(@PathVariable long clubId) {
         return ResponseEntity.ok(clubService.getClub(clubId));
     }
 
@@ -38,42 +38,40 @@ public class ClubController {
     /** Add a member to a club by providing their username. Member will be granted READ permission for that club. **/
     @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', admin)")
     @PutMapping("/clubs/{clubId}/add-member")
-    void addClubMember(@RequestParam String memberUsername, @P("clubId") @PathVariable long clubId) {
+    void addClubMember(@RequestParam String memberUsername, @PathVariable long clubId) {
         clubService.addClubMember(memberUsername, clubId);
     }
 
     /** Create a meetup by providing any information for the meetup. Group administrators will automatically be granted ADMINISTRATION permission for the meetup, as well as the creating user. **/
-    @PreAuthorize("hasPermission(#meetup.id, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || hasPermission(#meetup.id, 'dev.lorenzharfst.managr.objects.club.Meetup', create)")
+    @PreAuthorize("hasPermission(#meetup.clubId, 'dev.lorenzharfst.managr.objects.club.Club', admin) || hasPermission(#meetup.clubId, 'dev.lorenzharfst.managr.objects.club.Club', create)")
     @PostMapping("/meetups")
     long createMeetup(@P("meetup") @RequestBody MeetupDTO meetup, Principal principal) {
         return clubService.createMeetup(principal, meetup.title, meetup.assignedDate, meetup.attendeeSlots, meetup.location, meetup.description, meetup.clubId);
     }
 
     /** Retrieve a Meetup by providing its id. **/
-    @PreAuthorize("hasPermission(#meetup.id, 'dev.lorenzharfst.managr.objects.club.Meetup', read)")
+    @PreAuthorize("hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', read) || hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
     @GetMapping("/meetups/{meetupId}")
-    ResponseEntity<Meetup> getMeetup(@P("meetup") @PathVariable long meetupId) {
+    ResponseEntity<Meetup> getMeetup(@PathVariable long meetupId) {
         return ResponseEntity.ok(clubService.getMeetup(meetupId));
     }
 
     /** Add attendee to a meetup by providing their member id. **/
-    // TODO: Authorize only administrators of the meetup or the same member who the id belongs to (if latter not possible make another endpoint for them)
-    @PreAuthorize("hasPermission(#meetup.id, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
-    @PostMapping("/meetups/{meetupId}/attendees")
-    void addMeetupAttendee(@P("meetup") @PathVariable long meetupId, @RequestParam String memberUsername) {
+    @PreAuthorize("hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || principal.name == #memberUsername")
+    @PutMapping("/meetups/{meetupId}/attendees/add")
+    void addMeetupAttendee(@PathVariable long meetupId, @RequestParam String memberUsername) {
         clubService.addMeetupAttendee(meetupId, memberUsername);
     }
 
     /** Remove the attendee of a meetup by providing the member id. **/
-    // TODO: Authorize only administrators of the meetup or the same member who the id belongs to
-    @PreAuthorize("hasPermission(#meetup.id, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
-    @PutMapping("/meetups/{meetupId}/attendees/{memberId}")
-    void removeMeetupAttendee(@PathVariable long meetupId, @PathVariable String memberUsername) {
+    @PreAuthorize("hasPermission(#meetup.id, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || principal.name == #memberUsername")
+    @PutMapping("/meetups/{meetupId}/attendees/remove")
+    void removeMeetupAttendee(@PathVariable long meetupId, @RequestParam String memberUsername) {
         clubService.removeMeetupAttendee(meetupId, memberUsername);
     }
 
     /** Edit a meetup by providing any element of MeetupDTO. **/
-    // TODO: Authorize only administrators of the meetup.
+    @PreAuthorize("hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
     @PutMapping("/meetups/{meetupId}")
     void setMeetup(@RequestBody MeetupDTO meetup, @PathVariable long meetupId) {
         // Get the MeetupDTO and only apply changes to the fields that are not 0/null
