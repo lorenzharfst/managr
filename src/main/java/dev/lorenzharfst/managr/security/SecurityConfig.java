@@ -58,6 +58,7 @@ public class SecurityConfig {
                 login.failureHandler(new FailureFormLoginHandler());
             })
             .authorizeHttpRequests((authorize) -> authorize
+                .requestMatchers("/register").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling((configurer) -> {
