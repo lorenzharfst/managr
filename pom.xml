@@ -45,28 +45,23 @@
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
-        <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa-test</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security-test</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -80,6 +75,14 @@
         <version>7.0.2</version>
         <scope>compile</scope>
     </dependency>
+    <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-webmvc-test -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-webmvc-test</artifactId>
+        <version>4.0.2</version>
+        <scope>compile</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

@@ -47,7 +47,6 @@ public class ClubService {
     /**
      * Create a new Club given a Name and a Description.
      * @param name The club name
-     * @param description
      * @return The newly created Club id
      */
     @Transactional

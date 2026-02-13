@@ -6,6 +6,8 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+
 class AccessDeniedFormLoginHandler implements AccessDeniedHandler {
 
     public void handle(HttpServletRequest req, HttpServletResponse res, AccessDeniedException ex) {
