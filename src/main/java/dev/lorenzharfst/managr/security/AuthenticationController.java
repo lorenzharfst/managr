@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import dev.lorenzharfst.managr.objects.member.Member;
 import dev.lorenzharfst.managr.objects.member.MemberRepository;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 public class AuthenticationController {
     @Autowired
     JdbcUserDetailsManager userDetailsService;
@@ -23,7 +24,7 @@ public class AuthenticationController {
     @Autowired
     MemberRepository memberRepository;
 
-    @PostMapping("/register")
+    @PostMapping("/newacc")
     public void register(@RequestParam String username, @RequestParam String password) {
         UserDetails user = User.builder()
             .username(username)

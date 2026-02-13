@@ -26,7 +26,7 @@ public class ClubController {
     @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', admin) || hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', read)")
     @GetMapping("/clubs/{clubId}")
     ResponseEntity<Club> getClub(@PathVariable long clubId) {
-        return ResponseEntity.ok(clubService.getClub(clubId));
+        return ResponseEntity.status(302).body(clubService.getClub(clubId));
     }
 
     /** Create a club by providing a club name. Authenticated user will be granted ADMINISTRATION permission for that club. **/
@@ -37,9 +37,9 @@ public class ClubController {
 
     /** Add a member to a club by providing their username. Member will be granted READ permission for that club. **/
     @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', admin)")
-    @PutMapping("/clubs/{clubId}/add-member")
-    void addClubMember(@RequestParam String memberUsername, @PathVariable long clubId) {
-        clubService.addClubMember(memberUsername, clubId);
+    @PutMapping("/clubs/{clubId}/members/add")
+    void addClubMember(@RequestParam String username, @PathVariable long clubId) {
+        clubService.addClubMember(username, clubId);
     }
 
     /** Create a meetup by providing any information for the meetup. Group administrators will automatically be granted ADMINISTRATION permission for the meetup, as well as the creating user. **/
@@ -83,6 +83,7 @@ public class ClubController {
     }
 
     @DeleteMapping("meetups/{meetupId}")
+    // TODO: Add authorization
     void deleteMeetup(@PathVariable long meetupId){
         clubService.deleteMeetup(meetupId);
     }

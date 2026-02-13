@@ -58,7 +58,7 @@ public class SecurityConfig {
                 login.failureHandler(new FailureFormLoginHandler());
             })
             .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/register").permitAll()
+                .requestMatchers("/newacc").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling((configurer) -> {
@@ -75,7 +75,7 @@ public class SecurityConfig {
         JdbcUserDetailsManager userDetailsService = new JdbcUserDetailsManager(dataSource);
 
         // Create test user, delete in prod
-        createTestUser(userDetailsService);
+        //createTestUser(userDetailsService);
         return userDetailsService;
     }
 
@@ -93,7 +93,8 @@ public class SecurityConfig {
     }
 
     public void createTestUser(JdbcUserDetailsManager userDetailsService) {
-        UserDetails user = User.builder() .username("foo")
+        UserDetails user = User.builder()
+            .username("foo")
             .password(passwordEncoder().encode("bar"))
             .roles("USER")
             .build();
