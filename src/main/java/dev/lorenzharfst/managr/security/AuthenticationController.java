@@ -24,7 +24,7 @@ public class AuthenticationController {
     @Autowired
     MemberRepository memberRepository;
 
-    @PostMapping("/newacc")
+    @PostMapping("/newaccount")
     public void register(@RequestParam String username, @RequestParam String password) {
         UserDetails user = User.builder()
             .username(username)

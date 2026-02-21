@@ -28,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import dev.lorenzharfst.managr.objects.club.ClubRepository;
 import dev.lorenzharfst.managr.objects.club.MeetupRepository;
 
+import java.io.FileNotFoundException;
+
 /**
  * Unit test for simple App.
  */
@@ -101,6 +103,7 @@ public class AppTest {
             aclService.deleteAcl(new ObjectIdentityImpl(Club.class, club.getId()), true);
             club = clubRepo.findByOwner("club_owner").orElse(null);
         }
+        // TODO: Do the same for meetups, specially with the ACLs since meetups I believe get cascade'd with the club deletions
         // Delete all clubs, all members and all meetups
         memberRepo.delete(memberRepo.findByUsername("meetup_host").orElse(null));
         memberRepo.delete(memberRepo.findByUsername("club_member").orElse(null));
@@ -119,7 +122,7 @@ public class AppTest {
     @Order(2)
     @WithUserDetails("club_owner")
     void createClub() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/clubs?name=Mahjong Club"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/clubs?name=47638291 TEST CLUB"))
                 .andExpect(status().isOk());
     }
 
@@ -127,10 +130,10 @@ public class AppTest {
     @Order(3)
     @WithUserDetails("club_owner")
     void getClubAsOwner() throws Exception {
-        Club club = clubRepo.findByOwner("club_owner").orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
         mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId()))
                 .andExpect(status().isFound())
-                .andExpect(jsonPath("$.name").value("Mahjong Club"));
+                .andExpect(jsonPath("$.name").value("47638291 TEST CLUB"));
     }
 
     @Test
