@@ -43,17 +43,17 @@ public class ClubController {
     }
 
     /** Create a meetup by providing any information for the meetup. Group administrators will automatically be granted ADMINISTRATION permission for the meetup, as well as the creating user. **/
-    @PreAuthorize("hasPermission(#meetup.clubId, 'dev.lorenzharfst.managr.objects.club.Club', admin) || hasPermission(#meetup.clubId, 'dev.lorenzharfst.managr.objects.club.Club', create)")
-    @PostMapping("/meetups")
-    long createMeetup(@P("meetup") @RequestBody MeetupDTO meetup, Principal principal) {
-        return clubService.createMeetup(principal, meetup.title, meetup.assignedDate, meetup.attendeeSlots, meetup.location, meetup.description, meetup.clubId);
+    @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', admin) || hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', create)")
+    @PostMapping("/clubs/{clubId}/meetups")
+    long createMeetup(@RequestBody MeetupDTO meetup, Principal principal, @PathVariable long clubId) {
+        return clubService.createMeetup(principal, meetup.title, meetup.assignedDate, meetup.attendeeSlots, meetup.location, meetup.description, clubId);
     }
 
     /** Retrieve a Meetup by providing its id. **/
-    @PreAuthorize("hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', read) || hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
-    @GetMapping("/meetups/{meetupId}")
-    ResponseEntity<Meetup> getMeetup(@PathVariable long meetupId) {
-        return ResponseEntity.ok(clubService.getMeetup(meetupId));
+    @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Meetup', read) || hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
+    @GetMapping("/clubs/{clubId}/meetups/{meetupId}")
+    ResponseEntity<Meetup> getMeetup(@PathVariable long meetupId, @PathVariable long clubId) {
+        return ResponseEntity.status(302).body(clubService.getMeetup(meetupId));
     }
 
     /** Add attendee to a meetup by providing their member id. **/
@@ -94,6 +94,5 @@ public class ClubController {
         public int attendeeSlots;
         public String location;
         public String description;
-        public long clubId;
     }
 }

@@ -1,6 +1,7 @@
 package dev.lorenzharfst.managr;
 
 import dev.lorenzharfst.managr.objects.club.Club;
+import dev.lorenzharfst.managr.objects.club.Meetup;
 import dev.lorenzharfst.managr.objects.member.Member;
 import dev.lorenzharfst.managr.objects.member.MemberRepository;
 import org.junit.jupiter.api.*;
@@ -27,8 +28,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import dev.lorenzharfst.managr.objects.club.ClubRepository;
 import dev.lorenzharfst.managr.objects.club.MeetupRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Unit test for simple App.
@@ -91,19 +96,23 @@ public class AppTest {
     }
 
     @AfterAll
+    @Transactional
     void cleanup() {
         userDetailsService.deleteUser("meetup_host");
         userDetailsService.deleteUser("club_member");
         userDetailsService.deleteUser("club_owner");
         // Members are deleted automatically as long as ddl-auto = create-drop in properties file
         // Delete all clubs created by club_owner, including ACL entries and their children
-        Club club = clubRepo.findByOwner("club_owner").orElse(null);
-        while (club != null) {
-            clubRepo.deleteById(club.getId());
-            aclService.deleteAcl(new ObjectIdentityImpl(Club.class, club.getId()), true);
-            club = clubRepo.findByOwner("club_owner").orElse(null);
-        }
+        List<Club> clubs = clubRepo.findListByOwner("club_owner");
+        for (Club club : clubs) {
+                clubRepo.deleteById(club.getId());
+                aclService.deleteAcl(new ObjectIdentityImpl(Club.class, club.getId()), true);
+            }
         // TODO: Do the same for meetups, specially with the ACLs since meetups I believe get cascade'd with the club deletions
+        List<Meetup> meetups = meetupRepo.findListByOwner("meetup_host");
+        for (Meetup meetup : meetups) {
+            aclService.deleteAcl
+        }
         // Delete all clubs, all members and all meetups
         memberRepo.delete(memberRepo.findByUsername("meetup_host").orElse(null));
         memberRepo.delete(memberRepo.findByUsername("club_member").orElse(null));
@@ -145,4 +154,50 @@ public class AppTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @Order(5)
+    @WithUserDetails("club_member")
+    void getClubAsMember() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.name").value("47638291 TEST CLUB"));
+    }
+
+    @Test
+    @Order(6)
+    @WithUserDetails("club_owner")
+    void addMemberTwoToClubAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/members/add?username=meetup_host"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(7)
+    @WithUserDetails("meetup_host")
+    void createMeetup() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.post("/clubs/" + club.getId() + "/meetups")
+                .contentType("application/json")
+                .content("{" +
+                        "\"title\": \"47638291 TEST MEETUP\"," +
+                        "\"assignedDate\": \"2026-08-12T13:00:00\"," +
+                        "\"attendeeSlots\": 4," +
+                        "\"location\": \"John's House\"," +
+                        "\"description\": \"Casual hanchan\""
+                        + "}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(8)
+    @WithUserDetails("meetup_host")
+    void getMeetupAsHost() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.title").value("47638291 TEST MEETUP"));
+    }
 }
