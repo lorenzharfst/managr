@@ -104,14 +104,16 @@ public class AppTest {
         // Members are deleted automatically as long as ddl-auto = create-drop in properties file
         // Delete all clubs created by club_owner, including ACL entries and their children
         List<Club> clubs = clubRepo.findListByOwner("club_owner");
+        // Ids of the meetups we want to delete as we can't fetch them due to lazy load
+        List<Long> meetupIdsToDelete = new ArrayList<Long>();
         for (Club club : clubs) {
+                // Add the ids of the meetups belonging to this club to a list so we can delete ACLs later on
+                meetupIdsToDelete.addAll(clubRepo.findMeetupIdsByClubId(club.getId()));
                 clubRepo.deleteById(club.getId());
                 aclService.deleteAcl(new ObjectIdentityImpl(Club.class, club.getId()), true);
             }
-        // TODO: Do the same for meetups, specially with the ACLs since meetups I believe get cascade'd with the club deletions
-        List<Meetup> meetups = meetupRepo.findListByOwner("meetup_host");
-        for (Meetup meetup : meetups) {
-            aclService.deleteAcl
+        for (Long id : meetupIdsToDelete) {
+            aclService.deleteAcl(new ObjectIdentityImpl(Meetup.class, id), true);
         }
         // Delete all clubs, all members and all meetups
         memberRepo.delete(memberRepo.findByUsername("meetup_host").orElse(null));

@@ -26,5 +26,6 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
             "\tAND sid.sid = ?1\n" +
             ")")
     public void deleteByOwner(String owner);
-
+    @NativeQuery("SELECT m.id FROM Club c INNER JOIN Meetup m ON m.club_id = c.id WHERE c.id = ?1")
+    public List<Long> findMeetupIdsByClubId(Long clubId);
 }
