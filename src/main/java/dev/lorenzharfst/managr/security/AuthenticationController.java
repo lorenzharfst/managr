@@ -31,7 +31,7 @@ public class AuthenticationController {
             .password(encoder.encode(password))
             .roles("USER")
             .build();
-        Member member = new Member("username");
+        Member member = new Member(username);
 
         userDetailsService.createUser(user);
         memberRepository.save(member);
