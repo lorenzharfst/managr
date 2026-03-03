@@ -65,6 +65,7 @@ public class ClubService {
             acl = aclService.createAcl(objectIdentity);
         }
         acl.insertAce(acl.getEntries().size(), BasePermission.ADMINISTRATION, sid, true);
+        aclService.updateAcl(acl);
 
         return club.getId();
     }
@@ -74,6 +75,7 @@ public class ClubService {
      * @param memberUsername The actual log in username, which is unique.
      * @param clubId
      */
+    @Transactional
     public void addClubMember(String memberUsername, long clubId) throws NoSuchElementException {
         // Will return null if it didn't find that club
         Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
@@ -94,6 +96,7 @@ public class ClubService {
         }
         acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
         acl.insertAce(acl.getEntries().size(), BasePermission.CREATE, sid, true);
+        aclService.updateAcl(acl);
     }
 
     /**
@@ -162,6 +165,7 @@ public class ClubService {
      * @param meetupId
      * @param memberUsername Login name of that member
      */
+    // TODO: Add ACL permissions to meetup attendees
     public void addMeetupAttendee(long meetupId, String memberUsername) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
