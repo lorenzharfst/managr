@@ -203,4 +203,13 @@ public class AppTest {
                 .andExpect(status().isFound())
                 .andExpect(jsonPath("$.title").value("47638291 TEST MEETUP"));
     }
+
+    @Test
+    @Order(9)
+    @WithUserDetails("meetup_host")
+    void addAttendeeAsHost() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+    }
 }
