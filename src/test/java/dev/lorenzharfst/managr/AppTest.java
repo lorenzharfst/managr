@@ -322,4 +322,17 @@ public class AppTest {
                 .andExpect(jsonPath("$.title").value("Test Title 2"));
     }
 
+    @Test
+    @Order(10)
+    @WithUserDetails("club_owner")
+    void removeAttendeeAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/remove?username=club_member"))
+                .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.attendees").isEmpty());
+    }
+
 }

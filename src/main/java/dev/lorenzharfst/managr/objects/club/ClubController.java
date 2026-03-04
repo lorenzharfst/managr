@@ -2,7 +2,9 @@ package dev.lorenzharfst.managr.objects.club;
 
 import java.security.Principal;
 import java.util.Date;
+import java.util.List;
 
+import dev.lorenzharfst.managr.objects.member.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,8 +66,8 @@ public class ClubController {
     }
 
     /** Remove the attendee of a meetup by providing the member id. **/
-    @PreAuthorize("hasPermission(#meetup.id, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || principal.name == #username")
-    @PutMapping("clubs/{clubId}/meetups/{meetupId}/attendees/remove")
+    @PreAuthorize("hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || principal.name == #username")
+    @DeleteMapping("clubs/{clubId}/meetups/{meetupId}/attendees/remove")
     void removeMeetupAttendee(@PathVariable long meetupId, @RequestParam String username) {
         clubService.removeMeetupAttendee(meetupId, username);
     }
@@ -94,6 +96,7 @@ public class ClubController {
         public int attendeeSlots;
         public String location;
         public String description;
+        public List<Member> attendees;
     }
 
 }
