@@ -213,4 +213,15 @@ public class AppTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/add?username=club_member"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @Order(9)
+    @WithUserDetails("club_member")
+    void getMeetupAsClubMember() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.title").value("47638291 TEST MEETUP"));
+    }
 }

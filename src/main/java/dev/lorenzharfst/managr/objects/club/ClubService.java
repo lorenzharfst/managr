@@ -149,7 +149,7 @@ public class ClubService {
     }
 
     /**
-     * Join a meetup given a Meetup id and a Member's login name.
+     * Join a meetup given a Meetup id and a Member's login name. That user is given CREATE permissions for comments.
      * @param meetupId
      * @param memberId Member id
      */
@@ -170,12 +170,12 @@ public class ClubService {
             acl = aclService.createAcl(objectIdentity);
         }
 
-        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.CREATE, sid, true);
         aclService.updateAcl(acl);
     }
 
     /**
-     * Join a meetup given a Meetup id and a Member's login name.
+     * Join a meetup given a Meetup id and a Member's login name. That user is given CREATE permissions for comments.
      * @param meetupId
      * @param memberUsername Login name of that member
      */
@@ -196,7 +196,7 @@ public class ClubService {
             acl = aclService.createAcl(objectIdentity);
         }
 
-        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.CREATE, sid, true);
         aclService.updateAcl(acl);
     }
 

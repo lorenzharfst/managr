@@ -50,7 +50,7 @@ public class ClubController {
     }
 
     /** Retrieve a Meetup by providing its id. **/
-    @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Meetup', read) || hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
+    @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', read) || hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
     @GetMapping("/clubs/{clubId}/meetups/{meetupId}")
     ResponseEntity<Meetup> getMeetup(@PathVariable long meetupId, @PathVariable long clubId) {
         return ResponseEntity.status(302).body(clubService.getMeetup(meetupId));
