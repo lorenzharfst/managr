@@ -356,7 +356,33 @@ public class AppTest {
     void removeAttendeeAsOwner() throws Exception {
         Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
         Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/remove?username=club_owner"))
+                .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.attendees[?(@.username == \"club_owner\")].username").isEmpty());
+    }
+
+    @Test
+    @Order(10)
+    @WithUserDetails("club_member")
+    void removeAttendeeAsHimself() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
         mockMvc.perform(MockMvcRequestBuilders.delete("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/remove?username=club_member"))
+                .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.attendees[?(@.username == \"club_member\")].username").isEmpty());
+    }
+
+    @Test
+    @Order(10)
+    @WithUserDetails("club_owner")
+    void removeMemberAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/clubs/" + club.getId() + "/members/remove?username=club_member"))
                 .andExpect(status().isOk());
         mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
                 .andExpect(status().isFound())

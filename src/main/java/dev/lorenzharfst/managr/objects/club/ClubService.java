@@ -272,4 +272,12 @@ public class ClubService {
         meetupRepository.delete(meetup);
     }
 
+    /** Remove a member from a group
+     * @param
+     */
+    public void removeMember(long clubId, String username) {
+        Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
+        club.getMembers().removeIf((member) -> member.getUsername().equals(username));
+    }
+
 }
