@@ -1,6 +1,7 @@
 package dev.lorenzharfst.managr;
 
 import dev.lorenzharfst.managr.objects.club.Club;
+import dev.lorenzharfst.managr.objects.club.Meetup;
 import dev.lorenzharfst.managr.objects.member.Member;
 import dev.lorenzharfst.managr.objects.member.MemberRepository;
 import org.junit.jupiter.api.*;
@@ -12,6 +13,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.jdbc.JdbcMutableAclService;
+import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,6 +29,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import dev.lorenzharfst.managr.objects.club.ClubRepository;
 import dev.lorenzharfst.managr.objects.club.MeetupRepository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Unit test for simple App.
@@ -89,17 +97,24 @@ public class AppTest {
     }
 
     @AfterAll
+    @Transactional
     void cleanup() {
         userDetailsService.deleteUser("meetup_host");
         userDetailsService.deleteUser("club_member");
         userDetailsService.deleteUser("club_owner");
         // Members are deleted automatically as long as ddl-auto = create-drop in properties file
         // Delete all clubs created by club_owner, including ACL entries and their children
-        Club club = clubRepo.findByOwner("club_owner").orElse(null);
-        while (club != null) {
-            clubRepo.deleteById(club.getId());
-            aclService.deleteAcl(new ObjectIdentityImpl(Club.class, club.getId()), true);
-            club = clubRepo.findByOwner("club_owner").orElse(null);
+        List<Club> clubs = clubRepo.findListByOwner("club_owner");
+        // Ids of the meetups we want to delete as we can't fetch them due to lazy load
+        List<Long> meetupIdsToDelete = new ArrayList<Long>();
+        for (Club club : clubs) {
+                // Add the ids of the meetups belonging to this club to a list so we can delete ACLs later on
+                meetupIdsToDelete.addAll(clubRepo.findMeetupIdsByClubId(club.getId()));
+                clubRepo.deleteById(club.getId());
+                aclService.deleteAcl(new ObjectIdentityImpl(Club.class, club.getId()), true);
+            }
+        for (Long id : meetupIdsToDelete) {
+            aclService.deleteAcl(new ObjectIdentityImpl(Meetup.class, id), true);
         }
         // Delete all clubs, all members and all meetups
         memberRepo.delete(memberRepo.findByUsername("meetup_host").orElse(null));
@@ -119,7 +134,7 @@ public class AppTest {
     @Order(2)
     @WithUserDetails("club_owner")
     void createClub() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/clubs?name=Mahjong Club"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/clubs?name=47638291 TEST CLUB"))
                 .andExpect(status().isOk());
     }
 
@@ -127,10 +142,10 @@ public class AppTest {
     @Order(3)
     @WithUserDetails("club_owner")
     void getClubAsOwner() throws Exception {
-        Club club = clubRepo.findByOwner("club_owner").orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
         mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId()))
                 .andExpect(status().isFound())
-                .andExpect(jsonPath("$.name").value("Mahjong Club"));
+                .andExpect(jsonPath("$.name").value("47638291 TEST CLUB"));
     }
 
     @Test
@@ -142,4 +157,50 @@ public class AppTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @Order(5)
+    @WithUserDetails("club_member")
+    void getClubAsMember() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.name").value("47638291 TEST CLUB"));
+    }
+
+    @Test
+    @Order(6)
+    @WithUserDetails("club_owner")
+    void addMemberTwoToClubAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/members/add?username=meetup_host"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(7)
+    @WithUserDetails("meetup_host")
+    void createMeetup() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.post("/clubs/" + club.getId() + "/meetups")
+                .contentType("application/json")
+                .content("{" +
+                        "\"title\": \"47638291 TEST MEETUP\"," +
+                        "\"assignedDate\": \"2026-08-12T13:00:00\"," +
+                        "\"attendeeSlots\": 4," +
+                        "\"location\": \"John's House\"," +
+                        "\"description\": \"Casual hanchan\""
+                        + "}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(8)
+    @WithUserDetails("meetup_host")
+    void getMeetupAsHost() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.title").value("47638291 TEST MEETUP"));
+    }
 }

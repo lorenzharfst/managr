@@ -58,7 +58,7 @@ public class SecurityConfig {
                 login.failureHandler(new FailureFormLoginHandler());
             })
             .authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/newacc").permitAll()
+                .requestMatchers("/newaccount").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling((configurer) -> {

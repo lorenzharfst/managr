@@ -1,0 +1,16 @@
+-- This clears all tables related to users in Spring Security, mainly used for testing/development.
+ALTER TABLE club DISABLE TRIGGER ALL;
+ALTER TABLE meetup DISABLE TRIGGER ALL;
+ALTER TABLE member_clubs DISABLE TRIGGER ALL;
+ALTER TABLE member_meetups DISABLE TRIGGER ALL;
+ALTER TABLE member DISABLE TRIGGER ALL;
+DELETE FROM club;
+DELETE FROM meetup;
+DELETE FROM member_clubs;
+DELETE FROM member_meetups;
+DELETE FROM member;
+ALTER TABLE club ENABLE TRIGGER ALL;
+ALTER TABLE meetup ENABLE TRIGGER ALL;
+ALTER TABLE member_clubs ENABLE TRIGGER ALL;
+ALTER TABLE member_meetups ENABLE TRIGGER ALL;
+ALTER TABLE member ENABLE TRIGGER ALL;

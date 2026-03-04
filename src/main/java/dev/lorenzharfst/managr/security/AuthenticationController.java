@@ -24,14 +24,14 @@ public class AuthenticationController {
     @Autowired
     MemberRepository memberRepository;
 
-    @PostMapping("/newacc")
+    @PostMapping("/newaccount")
     public void register(@RequestParam String username, @RequestParam String password) {
         UserDetails user = User.builder()
             .username(username)
             .password(encoder.encode(password))
             .roles("USER")
             .build();
-        Member member = new Member("username");
+        Member member = new Member(username);
 
         userDetailsService.createUser(user);
         memberRepository.save(member);

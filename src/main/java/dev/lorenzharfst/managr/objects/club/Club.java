@@ -4,14 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.lorenzharfst.managr.objects.member.Member;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 @Entity
 public class Club {
@@ -23,6 +18,7 @@ public class Club {
     String description;
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "clubs")
     List<Member> members = new ArrayList<Member>();
+    @JsonIgnoreProperties("club")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "club")
     List<Meetup> meetups = new ArrayList<Meetup>();
 

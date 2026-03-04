@@ -1,5 +1,6 @@
 package dev.lorenzharfst.managr.objects.club;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,8 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     // find a club given its owners username
     @NativeQuery("SELECT * FROM Club c WHERE EXISTS ( SELECT 1 FROM acl_object_identity oid INNER JOIN acl_sid sid ON sid.id = oid.owner_sid WHERE CAST (oid.object_id_identity AS bigint) = c.id AND sid.sid = ?1)")
     public Optional<Club> findByOwner(String owner);
+    @NativeQuery("SELECT * FROM Club c WHERE EXISTS ( SELECT 1 FROM acl_object_identity oid INNER JOIN acl_sid sid ON sid.id = oid.owner_sid WHERE CAST (oid.object_id_identity AS bigint) = c.id AND sid.sid = ?1)")
+    public List<Club> findListByOwner(String owner);
     @NativeQuery("DELETE \n" +
             "FROM Club c \n" +
             "WHERE EXISTS ( \n" +
@@ -23,5 +26,6 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
             "\tAND sid.sid = ?1\n" +
             ")")
     public void deleteByOwner(String owner);
-
+    @NativeQuery("SELECT m.id FROM Club c INNER JOIN Meetup m ON m.club_id = c.id WHERE c.id = ?1")
+    public List<Long> findMeetupIdsByClubId(Long clubId);
 }
