@@ -2,8 +2,8 @@ package dev.lorenzharfst.managr.objects.club;
 
 import java.security.Principal;
 import java.util.Date;
-import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
@@ -14,7 +14,6 @@ import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -217,14 +216,15 @@ public class ClubService {
      */
     public void removeMeetupAttendee(long meetupId, String memberUsername) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
-        meetup.getAttendees().removeIf((member) -> member.getUsername() == memberUsername);
+        meetup.getAttendees().removeIf((member) -> member.getUsername().equals(memberUsername));
+        meetupRepository.save(meetup);
     }
 
     /**
      * Get the Attendees of a Meetup.
      * @param meetupId
      */
-    public List<Member> getMeetupAttendees(long meetupId) {
+    public Set<Member> getMeetupAttendees(long meetupId) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         return meetup.getAttendees();
     }

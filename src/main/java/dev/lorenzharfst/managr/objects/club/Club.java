@@ -1,8 +1,6 @@
 package dev.lorenzharfst.managr.objects.club;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.lorenzharfst.managr.objects.member.Member;
@@ -16,11 +14,12 @@ public class Club {
     Date creationDate;
     String name;
     String description;
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "clubs")
-    List<Member> members = new ArrayList<Member>();
+    @JsonIgnoreProperties("club")
+    @ManyToMany(cascade = CascadeType.ALL)
+    Set<Member> members = new HashSet<Member>();
     @JsonIgnoreProperties("club")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "club")
-    List<Meetup> meetups = new ArrayList<Meetup>();
+    Set<Meetup> meetups = new HashSet<Meetup>();
 
     public Club(String name, String description) {
         this.name = name;
@@ -69,19 +68,19 @@ public class Club {
             this.description = description;
     }
 
-    public List<Member> getMembers() {
+    public Set<Member> getMembers() {
             return members;
     }
 
-    public void setMembers(List<Member> members) {
+    public void setMembers(Set<Member> members) {
             this.members = members;
     }
 
-    public List<Meetup> getMeetups() {
+    public Set<Meetup> getMeetups() {
             return meetups;
     }
 
-    public void setMeetups(List<Meetup> meetups) {
+    public void setMeetups(Set<Meetup> meetups) {
             this.meetups = meetups;
     }
 

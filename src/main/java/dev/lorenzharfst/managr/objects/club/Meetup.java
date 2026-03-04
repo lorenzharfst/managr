@@ -2,7 +2,9 @@ package dev.lorenzharfst.managr.objects.club;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.lorenzharfst.managr.objects.member.Member;
 import jakarta.persistence.*;
 
@@ -13,8 +15,9 @@ public class Meetup {
     long id;
     Date creationDate;
     Date assignedDate;
-    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "meetups")
-    List<Member> attendees;
+    @JsonIgnoreProperties("club")
+    @ManyToMany(cascade = CascadeType.ALL)
+    Set<Member> attendees;
     // Login name of host, decided for keeping the name and not the MemberId since we already have the name with Spring's Authority
     String title;
     int attendeeSlots;
@@ -60,11 +63,11 @@ public class Meetup {
             this.assignedDate = assignedDate;
     }
 
-    public List<Member> getAttendees() {
+    public Set<Member> getAttendees() {
             return attendees;
     }
 
-    public void setAttendees(List<Member> attendees) {
+    public void setAttendees(Set<Member> attendees) {
             this.attendees = attendees;
     }
 

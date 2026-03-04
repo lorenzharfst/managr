@@ -3,6 +3,7 @@ package dev.lorenzharfst.managr.objects.club;
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import dev.lorenzharfst.managr.objects.member.Member;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,7 @@ public class ClubController {
         public int attendeeSlots;
         public String location;
         public String description;
-        public List<Member> attendees;
+        public Set<Member> attendees;
     }
 
 }

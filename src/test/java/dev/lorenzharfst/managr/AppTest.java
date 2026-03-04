@@ -118,9 +118,15 @@ public class AppTest {
             aclService.deleteAcl(new ObjectIdentityImpl(Meetup.class, id), true);
         }
         // Delete all clubs, all members and all meetups
-        memberRepo.delete(memberRepo.findByUsername("meetup_host").orElse(null));
-        memberRepo.delete(memberRepo.findByUsername("club_member").orElse(null));
-        memberRepo.delete(memberRepo.findByUsername("club_owner").orElse(null));
+        try {
+            memberRepo.delete(memberRepo.findByUsername("meetup_host").orElseThrow(NoSuchElementException::new));
+        } catch (NoSuchElementException ex) {}
+        try {
+        memberRepo.delete(memberRepo.findByUsername("club_member").orElseThrow(NoSuchElementException::new));
+        } catch (NoSuchElementException ex) {}
+        try {
+        memberRepo.delete(memberRepo.findByUsername("club_owner").orElseThrow(NoSuchElementException::new));
+        } catch (NoSuchElementException ex) {}
     }
 
     @Test
@@ -156,6 +162,9 @@ public class AppTest {
         Club club = clubRepo.findByOwner("club_owner").orElseThrow(ChangeSetPersister.NotFoundException::new);
         mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/members/add?username=club_member"))
                 .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.members[?(@.username == \"club_member\")].username").value("club_member"));
     }
 
     @Test
@@ -165,6 +174,9 @@ public class AppTest {
         Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
         mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/members/add?username=meetup_host"))
                 .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.members[?(@.username == \"meetup_host\")].username").value("meetup_host"));
     }
 
     @Test
@@ -202,6 +214,10 @@ public class AppTest {
         Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
         mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/add?username=club_member"))
                 .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.attendees[0].username").value("club_member"));
+
     }
 
     @Test

@@ -1,15 +1,13 @@
 package dev.lorenzharfst.managr.objects.member;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import dev.lorenzharfst.managr.objects.club.Club;
 import dev.lorenzharfst.managr.objects.club.Meetup;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 
 @Entity
 public class Member {
@@ -19,11 +17,12 @@ public class Member {
     // Username with which member logs in
     String username;
     // Name that is visible to other users
+    @Column(unique = true)
     String displayname;
-    @ManyToMany
-    List<Club> clubs = new ArrayList<Club>();
-    @ManyToMany
-    List<Meetup> meetups = new ArrayList<Meetup>();
+    @ManyToMany(mappedBy = "members")
+    Set<Club> clubs = new HashSet<Club>();
+    @ManyToMany(mappedBy = "attendees")
+    Set<Meetup> meetups = new HashSet<Meetup>();
     
     // No-arg constructor for reflection
     public Member() {}
@@ -58,11 +57,11 @@ public class Member {
             this.displayname = displayname;
     }
 
-    public List<Club> getClub() {
+    public Set<Club> getClub() {
             return clubs;
     }
 
-    public void setClub(List<Club> club) {
+    public void setClub(Set<Club> club) {
             this.clubs = club;
     }
 }
