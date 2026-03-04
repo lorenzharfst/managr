@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -61,7 +62,7 @@ public class AppTest {
 
     @Autowired
     MemberRepository memberRepo;
-    
+
     @Autowired
     JdbcMutableAclService aclService;
 
@@ -69,28 +70,28 @@ public class AppTest {
     void setup() {
         // Create a user who's gonna be a club owner
         UserDetails user = User.builder()
-            .username("club_owner")
-            .password(passwordEncoder.encode("club_owner"))
-            .roles("USER")
-            .build();
+                .username("club_owner")
+                .password(passwordEncoder.encode("club_owner"))
+                .roles("USER")
+                .build();
         userDetailsService.createUser(user);
         Member member = new Member("club_owner");
         memberRepo.save(member);
         // Create a user who's gonna be a club member
         user = User.builder()
-            .username("club_member")
-            .password(passwordEncoder.encode("club_member"))
-            .roles("USER")
-            .build();
+                .username("club_member")
+                .password(passwordEncoder.encode("club_member"))
+                .roles("USER")
+                .build();
         userDetailsService.createUser(user);
         member = new Member("club_member");
         memberRepo.save(member);
         // Create a user who's gonna be a meetup host
         user = User.builder()
-            .username("meetup_host")
-            .password(passwordEncoder.encode("meetup_host"))
-            .roles("USER")
-            .build();
+                .username("meetup_host")
+                .password(passwordEncoder.encode("meetup_host"))
+                .roles("USER")
+                .build();
         userDetailsService.createUser(user);
         member = new Member("meetup_host");
         memberRepo.save(member);
@@ -108,11 +109,11 @@ public class AppTest {
         // Ids of the meetups we want to delete as we can't fetch them due to lazy load
         List<Long> meetupIdsToDelete = new ArrayList<Long>();
         for (Club club : clubs) {
-                // Add the ids of the meetups belonging to this club to a list so we can delete ACLs later on
-                meetupIdsToDelete.addAll(clubRepo.findMeetupIdsByClubId(club.getId()));
-                clubRepo.deleteById(club.getId());
-                aclService.deleteAcl(new ObjectIdentityImpl(Club.class, club.getId()), true);
-            }
+            // Add the ids of the meetups belonging to this club to a list so we can delete ACLs later on
+            meetupIdsToDelete.addAll(clubRepo.findMeetupIdsByClubId(club.getId()));
+            clubRepo.deleteById(club.getId());
+            aclService.deleteAcl(new ObjectIdentityImpl(Club.class, club.getId()), true);
+        }
         for (Long id : meetupIdsToDelete) {
             aclService.deleteAcl(new ObjectIdentityImpl(Meetup.class, id), true);
         }
@@ -158,6 +159,15 @@ public class AppTest {
     }
 
     @Test
+    @Order(4)
+    @WithUserDetails("club_owner")
+    void addMemberTwoToClubAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/members/add?username=meetup_host"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @Order(5)
     @WithUserDetails("club_member")
     void getClubAsMember() throws Exception {
@@ -169,27 +179,28 @@ public class AppTest {
 
     @Test
     @Order(6)
-    @WithUserDetails("club_owner")
-    void addMemberTwoToClubAsOwner() throws Exception {
+    @WithUserDetails("meetup_host")
+    void createMeetup() throws Exception {
         Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
-        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/members/add?username=meetup_host"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/clubs/" + club.getId() + "/meetups")
+                        .contentType("application/json")
+                        .content("{" +
+                                "\"title\": \"47638291 TEST MEETUP\"," +
+                                "\"assignedDate\": \"2026-08-12T13:00:00\"," +
+                                "\"attendeeSlots\": 4," +
+                                "\"location\": \"John's House\"," +
+                                "\"description\": \"Casual hanchan\""
+                                + "}"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @Order(7)
     @WithUserDetails("meetup_host")
-    void createMeetup() throws Exception {
+    void addAttendeeAsHost() throws Exception {
         Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
-        mockMvc.perform(MockMvcRequestBuilders.post("/clubs/" + club.getId() + "/meetups")
-                .contentType("application/json")
-                .content("{" +
-                        "\"title\": \"47638291 TEST MEETUP\"," +
-                        "\"assignedDate\": \"2026-08-12T13:00:00\"," +
-                        "\"attendeeSlots\": 4," +
-                        "\"location\": \"John's House\"," +
-                        "\"description\": \"Casual hanchan\""
-                        + "}"))
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/add?username=club_member"))
                 .andExpect(status().isOk());
     }
 
@@ -205,17 +216,7 @@ public class AppTest {
     }
 
     @Test
-    @Order(9)
-    @WithUserDetails("meetup_host")
-    void addAttendeeAsHost() throws Exception {
-        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
-        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
-        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/add?username=club_member"))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    @Order(9)
+    @Order(8)
     @WithUserDetails("club_member")
     void getMeetupAsClubMember() throws Exception {
         Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
@@ -224,4 +225,101 @@ public class AppTest {
                 .andExpect(status().isFound())
                 .andExpect(jsonPath("$.title").value("47638291 TEST MEETUP"));
     }
+
+    @Test
+    @Order(8)
+    @WithUserDetails("club_owner")
+    void getMeetupAsClubOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.title").value("47638291 TEST MEETUP"));
+    }
+
+    @Test
+    @Order(9)
+    @WithUserDetails("club_owner")
+    void editMeetupTitleAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId())
+                .contentType("application/json")
+                .content("{ \"title\": \"47638291 TEST MEETUP 2\" }"));
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.title").value("47638291 TEST MEETUP 2"));
+    }
+
+    @Test
+    @Order(9)
+    @WithUserDetails("meetup_host")
+    void editMeetupDescriptionAsHost() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId())
+                .contentType("application/json")
+                .content("{ \"description\": \"Test Description\" }"));
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.description").value("Test Description"));
+    }
+
+    @Test
+    @Order(9)
+    @WithUserDetails("club_owner")
+    void editMeetupLocationAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId())
+                .contentType("application/json")
+                .content("{ \"location\": \"Test Location\" }"));
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.location").value("Test Location"));
+    }
+
+    @Test
+    @Order(9)
+    @WithUserDetails("meetup_host")
+    void editMeetupAttendeeSlotsAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId())
+                .contentType("application/json")
+                .content("{ \"attendeeSlots\": 2 }"));
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.attendeeSlots").value("2"));
+    }
+
+    @Test
+    @Order(9)
+    @WithUserDetails("club_owner")
+    void editMeetupAssignedDateAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId())
+                .contentType("application/json")
+                .content("{ \"assignedDate\": \"2026-03-26T16:00:00.000Z\" }"));
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.assignedDate").value("2026-03-26T16:00:00.000Z"));
+    }
+
+    @Test
+    @Order(9)
+    @WithUserDetails("meetup_host")
+    void editTwoElementsAsHost() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId())
+                .contentType("application/json")
+                .content("{ \"description\": \"Test Description 2\", \"title\": \"Test Title 2\" }"));
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.description").value("Test Description 2"))
+                .andExpect(jsonPath("$.title").value("Test Title 2"));
+    }
+
 }

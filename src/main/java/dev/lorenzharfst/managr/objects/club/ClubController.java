@@ -95,4 +95,5 @@ public class ClubController {
         public String location;
         public String description;
     }
+
 }
