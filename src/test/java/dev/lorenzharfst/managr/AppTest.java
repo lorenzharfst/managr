@@ -216,8 +216,20 @@ public class AppTest {
                 .andExpect(status().isOk());
         mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
                 .andExpect(status().isFound())
-                .andExpect(jsonPath("$.attendees[0].username").value("club_member"));
+                .andExpect(jsonPath("$.attendees[?(@.username == \"club_member\")].username").value("club_member"));
+    }
 
+    @Test
+    @Order(7)
+    @WithUserDetails("club_owner")
+    void addAttendeeAsOwner() throws Exception {
+        Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
+        Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/add?username=club_owner"))
+                .andExpect(status().isOk());
+        mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+                .andExpect(status().isFound())
+                .andExpect(jsonPath("$.attendees[?(@.username == \"club_owner\")].username").value("club_owner"));
     }
 
     @Test
@@ -348,7 +360,7 @@ public class AppTest {
                 .andExpect(status().isOk());
         mockMvc.perform(MockMvcRequestBuilders.get("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
                 .andExpect(status().isFound())
-                .andExpect(jsonPath("$.attendees").isEmpty());
+                .andExpect(jsonPath("$.attendees[?(@.username == \"club_member\")].username").isEmpty());
     }
 
 }
