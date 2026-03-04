@@ -158,6 +158,20 @@ public class ClubService {
         Member member = memberRepository.findById(memberId).orElseThrow(NoSuchElementException::new);
         meetup.getAttendees().add(member);
         meetupRepository.save(meetup);
+
+        // Add READ permissions to attendees
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(Meetup.class, meetup.getId());
+        Sid sid = new PrincipalSid(member.getUsername());
+
+        MutableAcl acl = null;
+        try {
+            acl = (MutableAcl) aclService.readAclById(objectIdentity);
+        } catch (NoSuchElementException ex) {
+            acl = aclService.createAcl(objectIdentity);
+        }
+
+        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        aclService.updateAcl(acl);
     }
 
     /**
@@ -165,12 +179,25 @@ public class ClubService {
      * @param meetupId
      * @param memberUsername Login name of that member
      */
-    // TODO: Add ACL permissions to meetup attendees
     public void addMeetupAttendee(long meetupId, String memberUsername) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         Member member = memberRepository.findByUsername(memberUsername).orElseThrow(NoSuchElementException::new);
         meetup.getAttendees().add(member);
         meetupRepository.save(meetup);
+
+        // Add READ permissions to attendees
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(Meetup.class, meetup.getId());
+        Sid sid = new PrincipalSid(member.getUsername());
+
+        MutableAcl acl = null;
+        try {
+            acl = (MutableAcl) aclService.readAclById(objectIdentity);
+        } catch (NoSuchElementException ex) {
+            acl = aclService.createAcl(objectIdentity);
+        }
+
+        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        aclService.updateAcl(acl);
     }
 
     /**
