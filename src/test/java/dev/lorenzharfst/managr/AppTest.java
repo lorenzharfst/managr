@@ -210,6 +210,7 @@ public class AppTest {
     void addAttendeeAsHost() throws Exception {
         Club club = clubRepo.findByOwner("club_owner").orElseThrow(FileNotFoundException::new);
         Meetup meetup = meetupRepo.findByOwner("meetup_host").orElseThrow(FileNotFoundException::new);
-        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.put("/clubs/" + club.getId() + "/meetups/" + meetup.getId() + "/attendees/add?username=club_member"))
+                .andExpect(status().isOk());
     }
 }
