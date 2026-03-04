@@ -37,3 +37,8 @@ create table acl_entry(
 	constraint foreign_fk_4 foreign key(acl_object_identity) references acl_object_identity(id),
 	constraint foreign_fk_5 foreign key(sid) references acl_sid(id)
 );
+
+-- Added raw temporarily, might not work with script
+-- , once you build a new db you'll figure out how to apply these
+select currval(pg_get_serial_sequence('acl_class', 'id'))
+select currval(pg_get_serial_sequence('acl_sid', 'id'))
