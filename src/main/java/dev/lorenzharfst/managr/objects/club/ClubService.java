@@ -2,8 +2,8 @@ package dev.lorenzharfst.managr.objects.club;
 
 import java.security.Principal;
 import java.util.Date;
-import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
@@ -14,7 +14,6 @@ import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.MutableAcl;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -149,7 +148,7 @@ public class ClubService {
     }
 
     /**
-     * Join a meetup given a Meetup id and a Member's login name.
+     * Join a meetup given a Meetup id and a Member's login name. That user is given CREATE permissions for comments.
      * @param meetupId
      * @param memberId Member id
      */
@@ -170,12 +169,12 @@ public class ClubService {
             acl = aclService.createAcl(objectIdentity);
         }
 
-        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.CREATE, sid, true);
         aclService.updateAcl(acl);
     }
 
     /**
-     * Join a meetup given a Meetup id and a Member's login name.
+     * Join a meetup given a Meetup id and a Member's login name. That user is given CREATE permissions for comments.
      * @param meetupId
      * @param memberUsername Login name of that member
      */
@@ -196,7 +195,7 @@ public class ClubService {
             acl = aclService.createAcl(objectIdentity);
         }
 
-        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        acl.insertAce(acl.getEntries().size(), BasePermission.CREATE, sid, true);
         aclService.updateAcl(acl);
     }
 
@@ -217,14 +216,15 @@ public class ClubService {
      */
     public void removeMeetupAttendee(long meetupId, String memberUsername) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
-        meetup.getAttendees().removeIf((member) -> member.getUsername() == memberUsername);
+        meetup.getAttendees().removeIf((member) -> member.getUsername().equals(memberUsername));
+        meetupRepository.save(meetup);
     }
 
     /**
      * Get the Attendees of a Meetup.
      * @param meetupId
      */
-    public List<Member> getMeetupAttendees(long meetupId) {
+    public Set<Member> getMeetupAttendees(long meetupId) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         return meetup.getAttendees();
     }
@@ -270,6 +270,14 @@ public class ClubService {
     public void deleteMeetup(long meetupId) {
         Meetup meetup = meetupRepository.findById(meetupId).orElseThrow(NoSuchElementException::new);
         meetupRepository.delete(meetup);
+    }
+
+    /** Remove a member from a group
+     * @param
+     */
+    public void removeMember(long clubId, String username) {
+        Club club = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
+        club.getMembers().removeIf((member) -> member.getUsername().equals(username));
     }
 
 }

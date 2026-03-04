@@ -2,7 +2,10 @@ package dev.lorenzharfst.managr.objects.club;
 
 import java.security.Principal;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
+import dev.lorenzharfst.managr.objects.member.Member;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,24 +53,31 @@ public class ClubController {
     }
 
     /** Retrieve a Meetup by providing its id. **/
-    @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Meetup', read) || hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
+    @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', read) || hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin)")
     @GetMapping("/clubs/{clubId}/meetups/{meetupId}")
     ResponseEntity<Meetup> getMeetup(@PathVariable long meetupId, @PathVariable long clubId) {
         return ResponseEntity.status(302).body(clubService.getMeetup(meetupId));
     }
 
     /** Add attendee to a meetup by providing their member id. **/
-    @PreAuthorize("hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || principal.name == #username")
+    @PreAuthorize("hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || principal.username == #username")
     @PutMapping("clubs/{clubId}/meetups/{meetupId}/attendees/add")
     void addMeetupAttendee(@PathVariable long meetupId, @RequestParam String username) {
         clubService.addMeetupAttendee(meetupId, username);
     }
 
     /** Remove the attendee of a meetup by providing the member id. **/
-    @PreAuthorize("hasPermission(#meetup.id, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || principal.name == #username")
-    @PutMapping("clubs/{clubId}/meetups/{meetupId}/attendees/remove")
+    @PreAuthorize("hasPermission(#meetupId, 'dev.lorenzharfst.managr.objects.club.Meetup', admin) || principal.username == #username")
+    @DeleteMapping("clubs/{clubId}/meetups/{meetupId}/attendees/remove")
     void removeMeetupAttendee(@PathVariable long meetupId, @RequestParam String username) {
         clubService.removeMeetupAttendee(meetupId, username);
+    }
+
+    /** Remove the attendee of a meetup by providing the member id. **/
+    @PreAuthorize("hasPermission(#clubId, 'dev.lorenzharfst.managr.objects.club.Club', admin) || principal.username == #username")
+    @DeleteMapping("clubs/{clubId}/members/remove")
+    void removeMember(@PathVariable long clubId, @RequestParam String username) {
+        clubService.removeMember(clubId, username);
     }
 
     /** Edit a meetup by providing any element of MeetupDTO. **/
@@ -94,5 +104,7 @@ public class ClubController {
         public int attendeeSlots;
         public String location;
         public String description;
+        public Set<Member> attendees;
     }
+
 }
