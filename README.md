@@ -2,6 +2,7 @@
 This is the back end of an application designed to create and manage clubs/groups (for example, a board game club) to organise events. It's developed purely with Spring Boot.
 
 ## TO DO
+- [x] Registration/Login
 - [x] Access Control Lists
 - [x] Club management
   - [x] Add/remove/edit Clubs
